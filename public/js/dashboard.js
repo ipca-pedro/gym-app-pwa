@@ -288,26 +288,41 @@ class Dashboard {
                 })
             });
 
+            console.log('Response status:', response.status);
+            console.log('Response headers:', response.headers);
+            
             if (response.ok) {
-                const data = await response.json();
-                console.log('API Response:', data);
+                const responseText = await response.text();
+                console.log('Raw response:', responseText);
                 
-                if (data.workout && data.workout.exercises) {
-                    return {
-                        id: Date.now().toString(),
-                        name: recommendation.name,
-                        type: recommendation.type,
-                        date: new Date().toISOString(),
-                        exercises: data.workout.exercises,
-                        duration: recommendation.duration,
-                        location: recommendation.location,
-                        status: 'active'
-                    };
-                } else {
-                    console.error('Invalid API response structure:', data);
+                try {
+                    const data = JSON.parse(responseText);
+                    console.log('Parsed API Response:', data);
+                    
+                    if (data.workout && data.workout.exercises && Array.isArray(data.workout.exercises)) {
+                        console.log('Valid workout data found, creating workout object');
+                        return {
+                            id: Date.now().toString(),
+                            name: recommendation.name,
+                            type: recommendation.type,
+                            date: new Date().toISOString(),
+                            exercises: data.workout.exercises,
+                            duration: recommendation.duration,
+                            location: recommendation.location,
+                            status: 'active'
+                        };
+                    } else {
+                        console.error('Invalid API response structure:', data);
+                        console.error('Expected: data.workout.exercises as array');
+                    }
+                } catch (parseError) {
+                    console.error('Failed to parse JSON response:', parseError);
+                    console.error('Response text:', responseText);
                 }
             } else {
                 console.error('API request failed:', response.status, response.statusText);
+                const errorText = await response.text();
+                console.error('Error response:', errorText);
             }
         } catch (error) {
             console.log('API não disponível, usando geração offline:', error.message);
