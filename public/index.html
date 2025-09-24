@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gym App Pro</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#667eea">
+    <link rel="stylesheet" href="css/styles.css">
+
+</head>
+<body>
+    <div class="theme-toggle" onclick="app.toggleTheme()">
+        <span id="themeIcon">🌙</span>
+    </div>
+
+    <div class="container">
+        <!-- Login Screen -->
+        <div id="loginScreen">
+            <div class="card">
+                <h1>🏋️ Gym App Pro</h1>
+                <p>Treinos inteligentes com IA e tracking completo</p>
+            </div>
+            
+            <div class="card">
+                <h2>Entrar</h2>
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label class="form-label">Usuário</label>
+                        <input type="text" class="form-control" id="loginUsername" placeholder="Digite seu usuário" value="teste" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Senha</label>
+                        <input type="password" class="form-control" id="loginPassword" placeholder="Digite sua senha" value="123456" required>
+                    </div>
+                    <button type="submit" class="btn">Entrar</button>
+                </form>
+                
+
+                <button class="btn btn-secondary" onclick="showRegisterForm()">Criar Conta</button>
+                <button class="btn-link" onclick="showPasswordReset()">Esqueci minha senha</button>
+            </div>
+        </div>
+
+        <!-- Register Screen -->
+        <div id="registerScreen" class="hidden">
+            <div class="card">
+                <h2>Criar Conta</h2>
+                <form id="registerForm">
+                    <div class="form-group">
+                        <label class="form-label">Usuário</label>
+                        <input type="text" class="form-control" id="registerUsername" placeholder="Escolha um nome de usuário" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Senha</label>
+                        <input type="password" class="form-control" id="registerPassword" placeholder="Crie uma senha" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Confirmar Senha</label>
+                        <input type="password" class="form-control" id="confirmPassword" placeholder="Confirme sua senha" required>
+                    </div>
+                    <button type="submit" class="btn">Criar Conta</button>
+                </form>
+                <button class="btn btn-secondary" onclick="app.navigate('login')">Voltar</button>
+            </div>
+        </div>
+
+        <!-- Dashboard -->
+        <div id="dashboardScreen" class="hidden">
+            <!-- Welcome Section -->
+            <div class="card welcome-card">
+                <div class="welcome-header">
+                    <h2 id="welcomeMessage">Olá! 👋</h2>
+                    <p id="motivationalMessage">Pronto para treinar hoje?</p>
+                </div>
+                <div class="next-workout" id="nextWorkoutCard">
+                    <div class="next-workout-info">
+                        <h3>Próximo Treino</h3>
+                        <p id="nextWorkoutType">Configure seu perfil primeiro</p>
+                    </div>
+                    <button class="btn" id="startWorkoutBtn" onclick="dashboard.startRecommendedWorkout()">
+                        🚀 Iniciar Treino
+                    </button>
+                </div>
+            </div>
+
+            <!-- Stats Overview -->
+            <div class="card">
+                <h3>Seu Progresso</h3>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalWorkouts">0</div>
+                        <div class="stat-label">Treinos Totais</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="weekStreak">0</div>
+                        <div class="stat-label">Esta Semana</div>
+                    </div>
+                    <div class="stat-card" id="currentBMI">
+                        <div class="stat-number">--</div>
+                        <div class="stat-label">IMC Atual</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="currentStreak">0</div>
+                        <div class="stat-label">Sequência</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="card">
+                <h3>Ações Rápidas</h3>
+                <div class="quick-actions-grid">
+                    <button class="action-card" onclick="dashboard.generateSmartWorkout()">
+                        <div class="action-icon">🤖</div>
+                        <div class="action-title">Treino IA</div>
+                        <div class="action-desc">Personalizado para você</div>
+                    </button>
+                    
+                    <button class="action-card" onclick="weeklyPlanner.generateWeeklyPlan(app.currentUser.profile)">
+                        <div class="action-icon">📅</div>
+                        <div class="action-title">Plano Semanal</div>
+                        <div class="action-desc">7 dias de treinos</div>
+                    </button>
+                    
+                    <button class="action-card" onclick="app.navigate('bodyTracker')">
+                        <div class="action-icon">📊</div>
+                        <div class="action-title">Registrar Peso</div>
+                        <div class="action-desc">Acompanhe progresso</div>
+                    </button>
+                    
+                    <button class="action-card" onclick="dashboard.showWorkoutHistory()">
+                        <div class="action-icon">📋</div>
+                        <div class="action-title">Histórico</div>
+                        <div class="action-desc">Treinos anteriores</div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="card">
+                <h3>Atividade Recente</h3>
+                <div id="recentActivity">
+                    <p class="text-center">Nenhuma atividade ainda</p>
+                </div>
+            </div>
+
+            <!-- Achievements -->
+            <div class="card" id="achievementsCard">
+                <h3>Conquistas 🏆</h3>
+                <div id="achievementsList">
+                    <p class="text-center">Complete treinos para desbloquear conquistas!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile Screen -->
+        <div id="profileScreen" class="hidden">
+            <div class="card">
+                <h2>👤 Perfil</h2>
+                <form id="profileForm">
+                    <div class="form-group">
+                        <label class="form-label">Nome</label>
+                        <input type="text" class="form-control" id="userName">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Idade</label>
+                        <input type="number" class="form-control" id="userAge">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Altura (cm)</label>
+                        <input type="number" class="form-control" id="userHeight">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Objetivo</label>
+                        <select class="form-control" id="userGoal">
+                            <option value="lose_weight">🔥 Perder Peso</option>
+                            <option value="gain_muscle">💪 Ganhar Massa</option>
+                            <option value="get_stronger">🏋️ Ficar Forte</option>
+                            <option value="endurance">🏃 Resistência</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Nível</label>
+                        <select class="form-control" id="userLevel">
+                            <option value="beginner">🟢 Iniciante</option>
+                            <option value="intermediate">🟡 Intermediário</option>
+                            <option value="advanced">🔴 Avançado</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Tipo de Treino Preferido</label>
+                        <select class="form-control" id="workoutType">
+                            <option value="strength">🏋️ Musculação</option>
+                            <option value="cardio">🏃 Cardio</option>
+                            <option value="hiit">🔥 HIIT</option>
+                            <option value="functional">🤸 Funcional</option>
+                            <option value="mixed">🎯 Misto</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Onde vai treinar?</label>
+                        <select class="form-control" id="trainingLocation">
+                            <option value="gym">🏋️ Academia</option>
+                            <option value="home">🏠 Casa</option>
+                            <option value="outdoor">🌳 Ar Livre</option>
+                            <option value="mixed">🔄 Varia</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Disponibilidade Semanal</label>
+                        <select class="form-control" id="weeklyAvailability">
+                            <option value="2-3">2-3 dias por semana</option>
+                            <option value="3-4">3-4 dias por semana</option>
+                            <option value="4-5">4-5 dias por semana</option>
+                            <option value="5-6">5-6 dias por semana</option>
+                            <option value="daily">Todos os dias</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Tempo por Sessão</label>
+                        <select class="form-control" id="sessionDuration">
+                            <option value="20-30">20-30 minutos</option>
+                            <option value="30-45">30-45 minutos</option>
+                            <option value="45-60">45-60 minutos</option>
+                            <option value="60-90">60-90 minutos</option>
+                            <option value="90+">Mais de 90 minutos</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Horário Preferido</label>
+                        <select class="form-control" id="preferredTime">
+                            <option value="morning">🌅 Manhã (6h-12h)</option>
+                            <option value="afternoon">☀️ Tarde (12h-18h)</option>
+                            <option value="evening">🌆 Noite (18h-22h)</option>
+                            <option value="flexible">🔄 Flexível</option>
+                        </select>
+                    </div>
+                    
+                    <button type="submit" class="btn">Salvar Perfil</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Workout Screen -->
+        <div id="workoutScreen" class="hidden">
+            <div class="card">
+                <div id="currentWorkout">
+                    <p class="text-center">Nenhum treino ativo</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Body Tracker Screen -->
+        <div id="bodyTrackerScreen" class="hidden">
+            <div class="card">
+                <h2>📊 Acompanhamento Corporal</h2>
+                
+                <!-- Weight Tracking -->
+                <div class="section">
+                    <h3>Peso</h3>
+                    <div id="weightChart"></div>
+                    <div class="input-group">
+                        <input type="number" class="form-control" id="newWeight" placeholder="Peso atual (kg)" step="0.1">
+                        <button class="btn" onclick="addWeight()">Adicionar</button>
+                    </div>
+                </div>
+
+                <!-- Measurements -->
+                <div class="section">
+                    <h3>Medidas Corporais</h3>
+                    <div class="measurements-grid">
+                        <div class="measurement-box">
+                            <div class="measurement-icon">💪</div>
+                            <div class="measurement-label">Braço</div>
+                            <input type="number" class="measurement-input" id="armMeasurement" placeholder="cm" step="0.1">
+                            <button class="measurement-btn" onclick="saveMeasurement('arm')">✓</button>
+                            <div class="measurement-history" id="armHistory">--</div>
+                        </div>
+                        
+                        <div class="measurement-box">
+                            <div class="measurement-icon">📏</div>
+                            <div class="measurement-label">Peito</div>
+                            <input type="number" class="measurement-input" id="chestMeasurement" placeholder="cm" step="0.1">
+                            <button class="measurement-btn" onclick="saveMeasurement('chest')">✓</button>
+                            <div class="measurement-history" id="chestHistory">--</div>
+                        </div>
+                        
+                        <div class="measurement-box">
+                            <div class="measurement-icon">📐</div>
+                            <div class="measurement-label">Cintura</div>
+                            <input type="number" class="measurement-input" id="waistMeasurement" placeholder="cm" step="0.1">
+                            <button class="measurement-btn" onclick="saveMeasurement('waist')">✓</button>
+                            <div class="measurement-history" id="waistHistory">--</div>
+                        </div>
+                        
+                        <div class="measurement-box">
+                            <div class="measurement-icon">📏</div>
+                            <div class="measurement-label">Quadril</div>
+                            <input type="number" class="measurement-input" id="hipMeasurement" placeholder="cm" step="0.1">
+                            <button class="measurement-btn" onclick="saveMeasurement('hip')">✓</button>
+                            <div class="measurement-history" id="hipHistory">--</div>
+                        </div>
+                        
+                        <div class="measurement-box">
+                            <div class="measurement-icon">🦵</div>
+                            <div class="measurement-label">Coxa</div>
+                            <input type="number" class="measurement-input" id="thighMeasurement" placeholder="cm" step="0.1">
+                            <button class="measurement-btn" onclick="saveMeasurement('thigh')">✓</button>
+                            <div class="measurement-history" id="thighHistory">--</div>
+                        </div>
+                        
+                        <div class="measurement-box">
+                            <div class="measurement-icon">📏</div>
+                            <div class="measurement-label">Pescoço</div>
+                            <input type="number" class="measurement-input" id="neckMeasurement" placeholder="cm" step="0.1">
+                            <button class="measurement-btn" onclick="saveMeasurement('neck')">✓</button>
+                            <div class="measurement-history" id="neckHistory">--</div>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+
+        <!-- Progress Screen -->
+        <div id="progressScreen" class="hidden">
+            <div class="card">
+                <h2>📈 Progresso</h2>
+                <div id="progressChart"></div>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number" id="avgDifficulty">0</div>
+                        <div class="stat-label">Dificuldade Média</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalVolume">0</div>
+                        <div class="stat-label">Volume Total</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+        <div class="nav-container">
+            <div class="nav-item" data-nav="dashboard">
+                <div class="nav-icon">🏠</div>
+                <div class="nav-label">Home</div>
+            </div>
+            <div class="nav-item" data-nav="workout">
+                <div class="nav-icon">🏋️</div>
+                <div class="nav-label">Treino</div>
+            </div>
+            <div class="nav-item" data-nav="bodyTracker">
+                <div class="nav-icon">📊</div>
+                <div class="nav-label">Corpo</div>
+            </div>
+            <div class="nav-item" data-nav="progress">
+                <div class="nav-icon">📈</div>
+                <div class="nav-label">Progresso</div>
+            </div>
+            <div class="nav-item" data-nav="profile">
+                <div class="nav-icon">👤</div>
+                <div class="nav-label">Perfil</div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Scripts -->
+    <script src="js/app.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/uiManager.js"></script>
+    <script src="js/dashboard.js"></script>
+    <script src="js/aiChat.js"></script>
+    <script src="js/weeklyPlanner.js"></script>
+    <script src="js/bodyTracker.js"></script>
+    <script src="js/workoutManager.js"></script>
+    
+    <script>
+        // Form Handlers
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            try {
+                await authManager.loginWithUsername(username, password);
+            } catch (error) {
+                console.error('Login failed:', error);
+            }
+        });
+
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('registerUsername').value;
+            const password = document.getElementById('registerPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            try {
+                await authManager.registerWithUsername(username, password, confirmPassword);
+            } catch (error) {
+                console.error('Registration failed:', error);
+            }
+        });
+
+        document.getElementById('profileForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const profile = {
+                name: document.getElementById('userName').value,
+                age: document.getElementById('userAge').value,
+                height: document.getElementById('userHeight').value,
+                goal: document.getElementById('userGoal').value,
+                level: document.getElementById('userLevel').value,
+                workoutType: document.getElementById('workoutType').value,
+                trainingLocation: document.getElementById('trainingLocation').value,
+                weeklyAvailability: document.getElementById('weeklyAvailability').value,
+                sessionDuration: document.getElementById('sessionDuration').value,
+                preferredTime: document.getElementById('preferredTime').value
+            };
+
+            app.currentUser.profile = profile;
+            app.saveUser();
+            app.navigate('dashboard');
+            authManager.showSuccess('Perfil salvo com sucesso!');
+        });
+
+        // Body Tracker Functions
+        function addWeight() {
+            const weight = document.getElementById('newWeight').value;
+            if (weight) {
+                bodyTracker.addWeightEntry(weight);
+                document.getElementById('newWeight').value = '';
+            }
+        }
+
+        function saveMeasurement(type) {
+            const input = document.getElementById(`${type}Measurement`);
+            const value = input.value;
+            
+            if (value && value > 0) {
+                bodyTracker.addMeasurement(type, value);
+                input.value = '';
+                uiManager.showToast(`Medida do ${type} salva!`, 'success');
+            } else {
+                uiManager.showToast('Digite um valor válido', 'error');
+            }
+        }
+
+
+
+        function showRegisterForm() {
+            app.navigate('register');
+        }
+
+        function showPasswordReset() {
+            const username = prompt('Digite seu usuário para recuperação:');
+            if (username) {
+                authManager.resetPassword(username);
+            }
+        }
+
+
+    </script>
+</body>
+</html>

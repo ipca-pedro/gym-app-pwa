@@ -1,0 +1,13 @@
+{
+  "name": "gym-app",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "wrangler pages dev public",
+    "deploy": "wrangler pages deploy public",
+    "worker:dev": "wrangler dev api/worker.js",
+    "worker:deploy": "wrangler deploy api/worker.js"
+  },
+  "devDependencies": {
+    "wrangler": "^3.0.0"
+  }
+}
