@@ -7,6 +7,7 @@
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#667eea">
     <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/workout-styles.css">
 
 </head>
 <body>
@@ -67,10 +68,10 @@
                         <div class="action-desc">Personalizado para você</div>
                     </button>
                     
-                    <button class="action-card" onclick="weeklyPlanner.generateWeeklyPlan(app.currentUser.profile)">
-                        <div class="action-icon">📅</div>
-                        <div class="action-title">Plano Semanal</div>
-                        <div class="action-desc">7 dias de treinos</div>
+                    <button class="action-card" onclick="app.navigate('workout')">
+                        <div class="action-icon">🏋️</div>
+                        <div class="action-title">Treinos</div>
+                        <div class="action-desc">Ver todos os treinos</div>
                     </button>
                     
                     <button class="action-card" onclick="app.navigate('bodyTracker')">
@@ -79,7 +80,7 @@
                         <div class="action-desc">Acompanhe progresso</div>
                     </button>
                     
-                    <button class="action-card" onclick="dashboard.showWorkoutHistory()">
+                    <button class="action-card" onclick="showWorkoutHistory()">
                         <div class="action-icon">📋</div>
                         <div class="action-title">Histórico</div>
                         <div class="action-desc">Treinos anteriores</div>
@@ -204,10 +205,25 @@
 
         <!-- Workout Screen -->
         <div id="workoutScreen" class="hidden">
+            <!-- Weekly Planner -->
             <div class="card">
+                <h2>📅 Plano Semanal</h2>
+                <button class="btn" onclick="generateWeeklyPlan()">Gerar Plano da Semana</button>
+                <div id="weeklyPlan"></div>
+            </div>
+            
+            <!-- Current Workout -->
+            <div class="card">
+                <h2>🏋️ Treino Atual</h2>
                 <div id="currentWorkout">
                     <p class="text-center">Nenhum treino ativo</p>
                 </div>
+            </div>
+            
+            <!-- Workout History -->
+            <div class="card">
+                <h2>📋 Histórico de Treinos</h2>
+                <div id="workoutHistory"></div>
             </div>
         </div>
 
@@ -312,7 +328,7 @@
             </div>
             <div class="nav-item" data-nav="workout">
                 <div class="nav-icon">🏋️</div>
-                <div class="nav-label">Treino</div>
+                <div class="nav-label">Treinos</div>
             </div>
             <div class="nav-item" data-nav="bodyTracker">
                 <div class="nav-icon">📊</div>
@@ -380,10 +396,59 @@
             if (value && value > 0) {
                 bodyTracker.addMeasurement(type, value);
                 input.value = '';
-                uiManager.showToast(`Medida do ${type} salva!`, 'success');
+                authManager.showSuccess(`Medida do ${type} salva!`);
             } else {
-                uiManager.showToast('Digite um valor válido', 'error');
+                authManager.showError('Digite um valor válido');
             }
+        }
+        
+        function generateWeeklyPlan() {
+            const user = app.currentUser;
+            if (!user?.profile) {
+                authManager.showError('Configure seu perfil primeiro!');
+                return;
+            }
+            
+            const plan = {
+                monday: 'Push (Peito/Ombros/Tríceps)',
+                tuesday: 'Cardio/Descanso Ativo',
+                wednesday: 'Pull (Costas/Bíceps)',
+                thursday: 'Legs (Pernas/Glúteos)',
+                friday: 'Upper Body',
+                saturday: 'Cardio/Funcional',
+                sunday: 'Descanso'
+            };
+            
+            const planHtml = Object.entries(plan).map(([day, workout]) => `
+                <div class="day-plan">
+                    <div class="day-name">${day.charAt(0).toUpperCase() + day.slice(1)}</div>
+                    <div class="day-workout">${workout}</div>
+                </div>
+            `).join('');
+            
+            document.getElementById('weeklyPlan').innerHTML = planHtml;
+            authManager.showSuccess('Plano semanal gerado!');
+        }
+        
+        function showWorkoutHistory() {
+            const user = app.currentUser;
+            const workouts = JSON.parse(localStorage.getItem(`workouts_${user?.id}`)) || [];
+            
+            if (workouts.length === 0) {
+                authManager.showError('Nenhum treino no histórico ainda');
+                return;
+            }
+            
+            const historyHtml = workouts.slice(0, 10).map(workout => `
+                <div class="history-item">
+                    <div class="workout-name">${workout.name}</div>
+                    <div class="workout-date">${new Date(workout.date).toLocaleDateString('pt-BR')}</div>
+                    <div class="workout-status">${workout.status === 'completed' ? '✅' : '⏳'}</div>
+                </div>
+            `).join('');
+            
+            document.getElementById('workoutHistory').innerHTML = historyHtml;
+            app.navigate('workout');
         }
 
 

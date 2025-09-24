@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gym App - Testes</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-result { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        .pass { background: #d4edda; color: #155724; }
+        .fail { background: #f8d7da; color: #721c24; }
+        .summary { margin: 20px 0; padding: 15px; background: #e9ecef; border-radius: 5px; }
+        button { padding: 10px 20px; margin: 10px 0; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Testes do Gym App</h1>
+    <button onclick="runAllTests()">Executar Todos os Testes</button>
+    <div id="results"></div>
+    <div id="summary"></div>
+
+    <script src="../public/js/auth.js"></script>
+    <script src="../public/js/dashboard.js"></script>
+    <script src="../public/js/bodyTracker.js"></script>
+    <script src="../public/js/workoutManager.js"></script>
+    <script src="tests.js"></script>
+    <script src="integration-tests.js"></script>
+</body>
+</html>

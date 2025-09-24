@@ -1,14 +1,4 @@
 name = "gym-app-api"
 main = "api/worker.js"
-compatibility_date = "2023-12-01"
+compatibility_date = "2024-01-01"
 
-[[kv_namespaces]]
-binding = "GYM_DB"
-preview_id = "gym-app-preview"
-id = "gym-app-production"
-
-[env.production.vars]
-# Adicione sua chave do Google AI via: wrangler secret put GEMINI_API_KEY
-
-[[env.production.routes]]
-pattern = "*/api/*"

@@ -187,8 +187,7 @@ class Dashboard {
 
         const recommendation = this.getWorkoutRecommendation();
         
-        // Show loading
-        const loadingId = uiManager.showLoading('Gerando seu treino personalizado...');
+        authManager.showNotification('Gerando treino personalizado...', 'info');
         
         try {
             // Generate workout based on full profile
@@ -197,13 +196,11 @@ class Dashboard {
             workoutManager.currentWorkout = workout;
             workoutManager.saveWorkout();
             
-            uiManager.hideLoading(loadingId);
             app.navigate('workout');
             
-            uiManager.showToast(`Treino ${recommendation.name} gerado!`, 'success');
+            authManager.showSuccess(`Treino ${recommendation.name} gerado!`);
         } catch (error) {
-            uiManager.hideLoading(loadingId);
-            uiManager.showToast('Erro ao gerar treino', 'error');
+            authManager.showError('Erro ao gerar treino');
         }
     }
 
@@ -215,7 +212,12 @@ class Dashboard {
         const prompt = this.buildWorkoutPrompt(profile, recommendation);
         
         try {
-            const response = await fetch('/api/workout', {
+            // Try API endpoint (local dev or deployed)
+            const apiUrl = window.location.hostname === 'localhost' ? 
+                'http://localhost:8787/api/workout' : 
+                'https://gym-app-api.YOUR_USERNAME.workers.dev/api/workout';
+            
+            const response = await fetch(apiUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ 
@@ -226,22 +228,24 @@ class Dashboard {
                 })
             });
 
-            const data = await response.json();
-            
-            if (data.workout) {
-                return {
-                    id: Date.now().toString(),
-                    name: recommendation.name,
-                    type: recommendation.type,
-                    date: new Date().toISOString(),
-                    exercises: data.workout.exercises || this.getFallbackExercises(recommendation),
-                    duration: recommendation.duration,
-                    location: recommendation.location,
-                    status: 'active'
-                };
+            if (response.ok) {
+                const data = await response.json();
+                
+                if (data.workout && data.workout.exercises) {
+                    return {
+                        id: Date.now().toString(),
+                        name: recommendation.name,
+                        type: recommendation.type,
+                        date: new Date().toISOString(),
+                        exercises: data.workout.exercises,
+                        duration: recommendation.duration,
+                        location: recommendation.location,
+                        status: 'active'
+                    };
+                }
             }
         } catch (error) {
-            console.error('AI workout generation failed:', error);
+            console.log('API não disponível, usando geração offline:', error.message);
         }
         
         // Fallback to rule-based generation
@@ -346,7 +350,7 @@ Retorne JSON: {
     async generateSmartWorkout() {
         const user = app.currentUser;
         if (!user?.profile) {
-            uiManager.showToast('Configure seu perfil primeiro!', 'warning');
+            authManager.showError('Configure seu perfil primeiro!');
             app.navigate('profile');
             return;
         }

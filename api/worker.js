@@ -15,14 +15,9 @@ export default {
     // Generate workout
     if (url.pathname === '/api/workout' && request.method === 'POST') {
       try {
-        const { userId, profile } = await request.json();
+        const { userId, profile, prompt } = await request.json();
         
-        // Get user history for personalization
-        const userHistory = await env.GYM_DB.get(`user:${userId}:history`) || '[]';
-        const history = JSON.parse(userHistory);
-        
-        // Use custom prompt if provided (from dashboard), otherwise use default
-        const prompt = request.prompt || `Crie um treino personalizado para:
+        const workoutPrompt = prompt || `Crie um treino personalizado para:
 - Idade: ${profile.age} anos
 - Peso: ${profile.weight}kg, Altura: ${profile.height}cm
 - Nível: ${profile.level}
@@ -30,13 +25,9 @@ export default {
 - Tipo preferido: ${profile.workoutType || 'misto'}
 - Local: ${profile.trainingLocation || 'academia'}
 - Duração: ${profile.sessionDuration || '45-60'} minutos
-- Disponibilidade: ${profile.weeklyAvailability || '3-4 dias'}
-- Horário: ${profile.preferredTime || 'flexível'}
-- Limitações: ${profile.limitations || 'Nenhuma'}
 
-Histórico de feedback: ${history.slice(-3).map(h => `Dificuldade: ${h.difficulty}/5, Comentários: ${h.comments}`).join('; ')}
-
-Retorne um JSON com: {"name": "Nome do Treino", "duration": "${profile.sessionDuration || '45'} min", "exercises": [{"name": "Exercício", "sets": 3, "reps": "12-15", "description": "Como fazer", "equipment": "equipamento"}]}`;
+Retorne APENAS um JSON válido com esta estrutura:
+{"exercises": [{"name": "Nome do Exercício", "sets": 3, "reps": "8-12", "rest": 60, "description": "Como executar", "equipment": "equipamento"}]}`;
 
         const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${env.GEMINI_API_KEY}`, {
           method: 'POST',
@@ -45,7 +36,7 @@ Retorne um JSON com: {"name": "Nome do Treino", "duration": "${profile.sessionDu
           },
           body: JSON.stringify({
             contents: [{
-              parts: [{ text: prompt }]
+              parts: [{ text: workoutPrompt }]
             }]
           })
         });
@@ -55,26 +46,31 @@ Retorne um JSON com: {"name": "Nome do Treino", "duration": "${profile.sessionDu
         
         try {
           const content = data.candidates[0].content.parts[0].text;
-          workout = JSON.parse(content);
-          workout.id = Date.now().toString();
-          workout.date = new Date().toISOString();
-        } catch {
+          const cleanContent = content.replace(/```json|```/g, '').trim();
+          const aiWorkout = JSON.parse(cleanContent);
+          
+          workout = {
+            id: Date.now().toString(),
+            name: "Treino IA Personalizado",
+            date: new Date().toISOString(),
+            exercises: aiWorkout.exercises,
+            status: 'active'
+          };
+        } catch (error) {
+          console.log('AI parsing failed, using fallback');
           // Fallback workout
           workout = {
             id: Date.now().toString(),
             name: "Treino Personalizado",
-            duration: "45 min",
             date: new Date().toISOString(),
             exercises: [
-              { name: "Agachamento", sets: 3, reps: "12-15", description: "Pés na largura dos ombros, desça até 90°" },
-              { name: "Flexão", sets: 3, reps: "8-12", description: "Mantenha o corpo reto, desça até o peito tocar o chão" },
-              { name: "Prancha", sets: 3, reps: "30-60s", description: "Corpo reto, apoie nos antebraços" }
-            ]
+              { name: "Agachamento", sets: 3, reps: "12-15", rest: 90, description: "Pés na largura dos ombros, desça até 90°", equipment: "Peso corporal" },
+              { name: "Flexão", sets: 3, reps: "8-12", rest: 60, description: "Mantenha o corpo reto, desça até o peito tocar o chão", equipment: "Peso corporal" },
+              { name: "Prancha", sets: 3, reps: "30-60s", rest: 45, description: "Corpo reto, apoie nos antebraços", equipment: "Peso corporal" }
+            ],
+            status: 'active'
           };
         }
-
-        // Save current workout
-        await env.GYM_DB.put(`user:${userId}:current_workout`, JSON.stringify(workout));
 
         return new Response(JSON.stringify({ workout }), {
           headers: { 'Content-Type': 'application/json', ...corsHeaders }
