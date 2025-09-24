@@ -224,15 +224,7 @@
             <div class="card">
                 <h2>📊 Acompanhamento Corporal</h2>
                 
-                <!-- Weight Tracking -->
-                <div class="section">
-                    <h3>Peso</h3>
-                    <div id="weightChart"></div>
-                    <div class="input-group">
-                        <input type="number" class="form-control" id="newWeight" placeholder="Peso atual (kg)" step="0.1">
-                        <button class="btn" onclick="addWeight()">Adicionar</button>
-                    </div>
-                </div>
+
 
                 <!-- Measurements -->
                 <div class="section">
@@ -387,13 +379,6 @@
         });
 
         // Body Tracker Functions
-        function addWeight() {
-            const weight = document.getElementById('newWeight').value;
-            if (weight) {
-                bodyTracker.addWeightEntry(weight);
-                document.getElementById('newWeight').value = '';
-            }
-        }
 
         function saveMeasurement(type) {
             const input = document.getElementById(`${type}Measurement`);

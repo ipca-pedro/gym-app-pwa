@@ -96,7 +96,8 @@ class Dashboard {
         const feedback = JSON.parse(localStorage.getItem(`feedback_${user.id}`)) || [];
         
         // Total workouts
-        document.getElementById('totalWorkouts').textContent = workouts.length;
+        const totalEl = document.getElementById('totalWorkouts');
+        if (totalEl) totalEl.textContent = workouts.length;
         
         // This week workouts
         const thisWeek = workouts.filter(w => {
@@ -105,11 +106,13 @@ class Dashboard {
             weekAgo.setDate(weekAgo.getDate() - 7);
             return workoutDate >= weekAgo;
         }).length;
-        document.getElementById('weekStreak').textContent = thisWeek;
+        const weekEl = document.getElementById('weekStreak');
+        if (weekEl) weekEl.textContent = thisWeek;
         
         // Current streak
         const streak = this.calculateStreak(workouts);
-        document.getElementById('currentStreak').textContent = streak;
+        const streakEl = document.getElementById('currentStreak');
+        if (streakEl) streakEl.textContent = streak;
         
         // BMI
         this.updateBMI();
@@ -120,14 +123,11 @@ class Dashboard {
         const bmiEl = document.getElementById('currentBMI');
         if (!bmiEl || !user?.profile) return;
 
-        const measurements = JSON.parse(localStorage.getItem(`measurements_${user.id}`)) || {};
-        const latestWeight = measurements.weight && measurements.weight.length > 0 ? measurements.weight[0] : null;
+        const weight = user.profile.weight;
+        const height = user.profile.height;
         
-        // Use latest weight measurement or profile weight
-        const weight = latestWeight ? latestWeight.weight : user.profile.weight;
-        
-        if (weight && user.profile.height) {
-            const heightM = user.profile.height / 100;
+        if (weight && height) {
+            const heightM = height / 100;
             const bmi = (weight / (heightM * heightM)).toFixed(1);
             const statNumber = bmiEl.querySelector('.stat-number');
             if (statNumber) {
