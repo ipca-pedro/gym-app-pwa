@@ -10,7 +10,6 @@ class WorkoutManager {
 
     load() {
         this.renderCurrentWorkout();
-        this.setupTimers();
     }
 
     // Workout Generation with Progression

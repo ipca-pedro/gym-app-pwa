@@ -215,7 +215,7 @@ class Dashboard {
             // Try API endpoint (local dev or deployed)
             const apiUrl = window.location.hostname === 'localhost' ? 
                 'http://localhost:8787/api/workout' : 
-                'https://gym-app-api.YOUR_USERNAME.workers.dev/api/workout';
+                'https://gym-app-api.a25453-alunos-ipca-pt.workers.dev/api/workout';
             
             const response = await fetch(apiUrl, {
                 method: 'POST',
