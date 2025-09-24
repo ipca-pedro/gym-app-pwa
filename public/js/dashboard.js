@@ -272,6 +272,7 @@ class Dashboard {
 
             if (response.ok) {
                 const data = await response.json();
+                console.log('API Response:', data);
                 
                 if (data.workout && data.workout.exercises) {
                     return {
@@ -284,7 +285,11 @@ class Dashboard {
                         location: recommendation.location,
                         status: 'active'
                     };
+                } else {
+                    console.error('Invalid API response structure:', data);
                 }
+            } else {
+                console.error('API request failed:', response.status, response.statusText);
             }
         } catch (error) {
             console.log('API não disponível, usando geração offline:', error.message);
