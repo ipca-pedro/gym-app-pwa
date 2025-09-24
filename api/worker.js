@@ -175,6 +175,8 @@ Retorne APENAS um JSON válido com esta estrutura:
       }
     }
 
-    return new Response('Not found', { status: 404 });
+    return new Response('Gym App API - Funcionando! 🚀', { 
+      headers: { 'Content-Type': 'text/plain', ...corsHeaders } 
+    });
   }
 };

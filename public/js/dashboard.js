@@ -29,24 +29,63 @@ class Dashboard {
         
         welcomeEl.textContent = `${greeting}, ${name}!`;
         
-        // Motivational messages based on progress
+        // Dynamic motivational messages
         const workouts = JSON.parse(localStorage.getItem(`workouts_${user?.id}`)) || [];
-        const lastWorkout = workouts[0];
-        const daysSinceLastWorkout = lastWorkout ? 
-            Math.floor((Date.now() - new Date(lastWorkout.date).getTime()) / (1000 * 60 * 60 * 24)) : 999;
+        const streak = this.calculateStreak(workouts);
+        const totalWorkouts = workouts.length;
+        const goal = user?.profile?.goal;
         
-        let motivation = '';
-        if (daysSinceLastWorkout === 0) {
-            motivation = '🔥 Você já treinou hoje! Que tal um alongamento?';
-        } else if (daysSinceLastWorkout === 1) {
-            motivation = '💪 Hora de manter o ritmo! Vamos treinar?';
-        } else if (daysSinceLastWorkout <= 3) {
-            motivation = '⚡ Que tal retomar os treinos hoje?';
-        } else {
-            motivation = '🚀 Vamos começar uma nova jornada fitness!';
+        const motivationalMessages = this.getMotivationalMessage(streak, totalWorkouts, goal);
+        motivationEl.textContent = motivationalMessages;
+        
+        // Add goal-based styling with smooth transition
+        if (goal) {
+            document.body.classList.add(`goal-${goal.replace('_', '-')}`);
+            
+            // Update welcome card with goal-specific gradient
+            const welcomeCard = document.querySelector('.welcome-card');
+            if (welcomeCard) {
+                welcomeCard.style.transition = 'background 0.5s ease';
+            }
+        }
+    }
+    
+    getMotivationalMessage(streak, totalWorkouts, goal) {
+        const goalMessages = {
+            lose_weight: [
+                '🔥 Cada treino queima calorias e constrói disciplina!',
+                '⚡ Você está mais forte que suas desculpas!',
+                '🎯 Foco no objetivo - cada dia conta!'
+            ],
+            gain_muscle: [
+                '💪 Músculos crescem no descanso, mas são construídos no treino!',
+                '🏗️ Construindo o corpo dos seus sonhos, rep por rep!',
+                '⚡ Força não vem do que você consegue fazer, mas do que você supera!'
+            ],
+            get_stronger: [
+                '🏋️ A força mental é tão importante quanto a física!',
+                '💎 Pressão faz diamantes - você está se forjando!',
+                '⚡ Cada peso levantado é um limite quebrado!'
+            ],
+            endurance: [
+                '🏃 Resistência é sobre não desistir quando fica difícil!',
+                '⚡ Seu coração fica mais forte a cada batida!',
+                '🎯 Vai além do que você pensava ser possível!'
+            ]
+        };
+        
+        if (streak >= 7) {
+            return `🔥 ${streak} dias consecutivos! Você é imparável!`;
+        } else if (streak >= 3) {
+            return `💪 ${streak} dias seguidos! Continue assim!`;
+        } else if (totalWorkouts >= 10) {
+            return `🏆 ${totalWorkouts} treinos completados! Que evolução!`;
+        } else if (goal && goalMessages[goal]) {
+            const messages = goalMessages[goal];
+            return messages[Math.floor(Math.random() * messages.length)];
         }
         
-        motivationEl.textContent = motivation;
+        return '🚀 Hoje é o dia perfeito para treinar!';
     }
 
     updateStats() {
@@ -187,7 +226,7 @@ class Dashboard {
 
         const recommendation = this.getWorkoutRecommendation();
         
-        authManager.showNotification('Gerando treino personalizado...', 'info');
+        this.showEnhancedLoading('Gerando treino personalizado...', '🤖');
         
         try {
             // Generate workout based on full profile
@@ -198,8 +237,11 @@ class Dashboard {
             
             app.navigate('workout');
             
+            this.showWorkoutCelebration(recommendation.name);
+            this.hideEnhancedLoading();
             authManager.showSuccess(`Treino ${recommendation.name} gerado!`);
         } catch (error) {
+            this.hideEnhancedLoading();
             authManager.showError('Erro ao gerar treino');
         }
     }
@@ -215,7 +257,7 @@ class Dashboard {
             // Try API endpoint (local dev or deployed)
             const apiUrl = window.location.hostname === 'localhost' ? 
                 'http://localhost:8787/api/workout' : 
-                'https://gym-app-api.a25453-alunos-ipca-pt.workers.dev/api/workout';
+                'https://gym-app-api.a25453.workers.dev/api/workout';
             
             const response = await fetch(apiUrl, {
                 method: 'POST',
@@ -356,6 +398,59 @@ Retorne JSON: {
         }
 
         await this.startRecommendedWorkout();
+    }
+    
+    showWorkoutCelebration(workoutName) {
+        // Create celebration overlay
+        const celebration = document.createElement('div');
+        celebration.className = 'workout-celebration';
+        celebration.innerHTML = `
+            <div class="celebration-content">
+                <div class="celebration-icon">🎉</div>
+                <h2>Treino Gerado!</h2>
+                <p>${workoutName}</p>
+                <div class="celebration-message">Vamos arrasar! 💪</div>
+            </div>
+        `;
+        
+        document.body.appendChild(celebration);
+        
+        // Auto remove after 2 seconds
+        setTimeout(() => {
+            celebration.style.animation = 'fadeOut 0.3s ease';
+            setTimeout(() => celebration.remove(), 300);
+        }, 2000);
+    }
+    
+    showEnhancedLoading(message, icon = '⏳') {
+        const loading = document.createElement('div');
+        loading.className = 'loading-overlay';
+        loading.innerHTML = `
+            <div class="loading-content">
+                <div class="pulse-loader"></div>
+                <h3 style="margin: 20px 0 10px; color: white;">${icon} ${message}</h3>
+                <p style="color: rgba(255,255,255,0.8); margin: 0;">Isso pode levar alguns segundos...</p>
+            </div>
+        `;
+        
+        document.body.appendChild(loading);
+        
+        // Store reference for removal
+        this.currentLoading = loading;
+        
+        return loading;
+    }
+    
+    hideEnhancedLoading() {
+        if (this.currentLoading) {
+            this.currentLoading.style.animation = 'fadeOut 0.3s ease';
+            setTimeout(() => {
+                if (this.currentLoading) {
+                    this.currentLoading.remove();
+                    this.currentLoading = null;
+                }
+            }, 300);
+        }
     }
 
     showWorkoutHistory() {

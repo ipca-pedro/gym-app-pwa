@@ -46,14 +46,52 @@ body {
     margin: 20px 0;
     box-shadow: var(--shadow);
     border: 1px solid var(--border);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    animation: slideUp 0.5s ease-out;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    animation: slideUp 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: translateZ(0);
+    will-change: transform;
+}
+
+.card-enter {
+    opacity: 0;
+    transform: translateY(40px) scale(0.95);
+    animation: cardEnter 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes cardEnter {
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
 }
 
 @keyframes slideUp {
-    from { opacity: 0; transform: translateY(30px); }
-    to { opacity: 1; transform: translateY(0); }
+    from { 
+        opacity: 0; 
+        transform: translateY(40px) scale(0.95); 
+    }
+    to { 
+        opacity: 1; 
+        transform: translateY(0) scale(1); 
+    }
 }
+
+/* Success Animations */
+@keyframes successPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.success-animation {
+    animation: successPulse 0.6s ease-out;
+}
+
+/* Motivational Gradients */
+.goal-lose-weight { --primary: linear-gradient(135deg, #ff6b6b, #ee5a24); }
+.goal-gain-muscle { --primary: linear-gradient(135deg, #4834d4, #686de0); }
+.goal-get-stronger { --primary: linear-gradient(135deg, #ff9ff3, #f368e0); }
+.goal-endurance { --primary: linear-gradient(135deg, #00d2d3, #54a0ff); }
 
 .card:hover {
     transform: translateY(-2px);
@@ -72,12 +110,19 @@ body {
     font-weight: 600;
     cursor: pointer;
     margin: 10px 0;
-    transition: all 0.3s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     overflow: hidden;
     text-decoration: none;
     display: inline-block;
     text-align: center;
+    transform: translateZ(0);
+    will-change: transform;
+}
+
+.btn:active {
+    transform: scale(0.98);
+    transition: transform 0.1s ease;
 }
 
 .btn::before {
@@ -120,7 +165,19 @@ body {
     background: var(--card-bg);
     color: var(--text);
     font-size: 16px;
-    transition: all 0.3s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    min-height: 48px;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+.form-control:invalid {
+    border-color: #ef4444;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+.form-control:valid {
+    border-color: #10b981;
 }
 
 .form-control:focus {
@@ -135,6 +192,8 @@ body {
     margin: 12px 0 6px;
     font-weight: 600;
     color: var(--text);
+    font-size: 14px;
+    line-height: 1.4;
 }
 
 /* Navigation */
@@ -220,7 +279,25 @@ body {
     border-radius: 12px;
     text-align: center;
     border: 2px solid var(--border);
-    transition: all 0.3s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: var(--primary);
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+}
+
+.stat-card:hover::after {
+    transform: scaleX(1);
 }
 
 .stat-card:hover {
@@ -254,7 +331,25 @@ body {
     height: 100%;
     background: var(--success);
     border-radius: 4px;
-    transition: width 0.3s ease;
+    transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.progress-fill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    animation: progressShine 2s ease-in-out infinite;
+}
+
+@keyframes progressShine {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
 }
 
 /* Utilities */
@@ -380,7 +475,7 @@ body {
     color: #ef4444;
 }
 
-/* Loading States */
+/* Enhanced Loading States */
 .loading-overlay {
     position: fixed;
     top: 0;
@@ -388,11 +483,43 @@ body {
     right: 0;
     bottom: 0;
     background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(10px);
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: 10000;
-    animation: fadeIn 0.3s ease;
+    animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.pulse-loader {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(45deg, #667eea, #764ba2);
+    animation: pulse-scale 1.5s ease-in-out infinite;
+    position: relative;
+}
+
+.pulse-loader::before {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: -10px;
+    right: -10px;
+    bottom: -10px;
+    border-radius: 50%;
+    border: 2px solid rgba(102, 126, 234, 0.3);
+    animation: pulse-ring 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse-scale {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+@keyframes pulse-ring {
+    0% { transform: scale(0.8); opacity: 1; }
+    100% { transform: scale(1.4); opacity: 0; }
 }
 
 .loading-content {
@@ -840,24 +967,151 @@ body {
     font-size: 14px;
 }
 
-/* Responsive */
+/* Enhanced Responsive Design */
 @media (max-width: 480px) {
-    .container { padding: 16px 16px 100px 16px; }
-    .card { padding: 20px; margin: 16px 0; }
-    .stats-grid { grid-template-columns: 1fr 1fr; }
-    .input-group, .measurement-inputs { flex-direction: column; }
-    .toast { right: 10px; left: 10px; max-width: none; }
-    .onboarding-tooltip { left: 10px; right: 10px; max-width: none; }
-    .message-bubble { max-width: 85%; }
-    .plan-actions { flex-direction: column; }
-    .measurements-grid { grid-template-columns: repeat(2, 1fr); }
+    .container { 
+        padding: 12px 12px 100px 12px; 
+        max-width: 100vw;
+    }
+    .card { 
+        padding: 18px; 
+        margin: 12px 0; 
+        border-radius: 16px;
+    }
+    .stats-grid { 
+        grid-template-columns: 1fr 1fr; 
+        gap: 8px;
+    }
+    .input-group, .measurement-inputs { 
+        flex-direction: column; 
+        gap: 12px;
+    }
+    .toast { 
+        right: 8px; 
+        left: 8px; 
+        max-width: none;
+        border-radius: 8px;
+    }
+    .btn {
+        padding: 16px;
+        font-size: 16px;
+        min-height: 48px;
+        touch-action: manipulation;
+    }
+    .nav-item {
+        min-width: 60px;
+        min-height: 60px;
+        padding: 12px 8px;
+    }
+    .nav-icon {
+        font-size: 20px;
+    }
+    .nav-label {
+        font-size: 10px;
+    }
+    .measurements-grid { 
+        grid-template-columns: 1fr; 
+        gap: 12px;
+    }
+    .quick-actions-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+    .action-card {
+        padding: 20px;
+        min-height: 80px;
+    }
+}
+
+@media (max-width: 320px) {
+    .container { padding: 8px 8px 90px 8px; }
+    .card { padding: 16px; }
+    .stats-grid { grid-template-columns: 1fr; }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+    :root {
+        --border: #000;
+        --text: #000;
+        --card-bg: #fff;
+    }
+    .btn {
+        border: 2px solid #000;
+    }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* Focus styles for accessibility */
+.btn:focus,
+.form-control:focus,
+.nav-item:focus,
+.action-card:focus {
+    outline: 3px solid #667eea;
+    outline-offset: 2px;
+}
+
+/* Better touch targets */
+.nav-item,
+.action-card,
+.btn,
+.measurement-btn {
+    min-height: 44px;
+    min-width: 44px;
+}
+
+/* Performance optimizations */
+.card,
+.btn,
+.action-card,
+.stat-card {
+    contain: layout style;
+    will-change: transform;
+}
+
+/* Smooth scrolling */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Better text rendering */
+body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
 }
 
 /* Dashboard Styles */
 .welcome-card {
-    background: linear-gradient(135deg, #667eea, #764ba2);
+    background: var(--primary);
     color: white;
     border: none;
+    position: relative;
+    overflow: hidden;
+}
+
+.welcome-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+    animation: shimmer 3s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+    0%, 100% { transform: rotate(0deg); }
+    50% { transform: rotate(180deg); }
 }
 
 .welcome-header h2 {
@@ -894,8 +1148,8 @@ body {
 
 .quick-actions-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
     margin: 16px 0;
 }
 
@@ -906,11 +1160,32 @@ body {
     padding: 16px;
     text-align: center;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 8px;
+    position: relative;
+    overflow: hidden;
+}
+
+.action-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.1), transparent);
+    transition: left 0.6s ease;
+}
+
+.action-card:hover::before {
+    left: 100%;
+}
+
+.action-card:active {
+    transform: scale(0.95);
 }
 
 .action-card:hover {

@@ -19,7 +19,7 @@
         <!-- Dashboard -->
         <div id="dashboardScreen" class="hidden">
             <!-- Welcome Section -->
-            <div class="card welcome-card">
+            <div class="card welcome-card" data-animate="slideUp">
                 <div class="welcome-header">
                     <h2 id="welcomeMessage">Olá! 👋</h2>
                     <p id="motivationalMessage">Pronto para treinar hoje?</p>
@@ -36,7 +36,7 @@
             </div>
 
             <!-- Stats Overview -->
-            <div class="card">
+            <div class="card" data-animate="slideUp">
                 <h3>Seu Progresso</h3>
                 <div class="stats-grid">
                     <div class="stat-card">
@@ -59,7 +59,7 @@
             </div>
 
             <!-- Quick Actions -->
-            <div class="card">
+            <div class="card" data-animate="slideLeft">
                 <h3>Ações Rápidas</h3>
                 <div class="quick-actions-grid">
                     <button class="action-card" onclick="dashboard.generateSmartWorkout()">
@@ -68,28 +68,16 @@
                         <div class="action-desc">Personalizado para você</div>
                     </button>
                     
-                    <button class="action-card" onclick="app.navigate('workout')">
-                        <div class="action-icon">🏋️</div>
-                        <div class="action-title">Treinos</div>
-                        <div class="action-desc">Ver todos os treinos</div>
-                    </button>
-                    
-                    <button class="action-card" onclick="app.navigate('bodyTracker')">
-                        <div class="action-icon">📊</div>
-                        <div class="action-title">Registrar Peso</div>
-                        <div class="action-desc">Acompanhe progresso</div>
-                    </button>
-                    
-                    <button class="action-card" onclick="showWorkoutHistory()">
-                        <div class="action-icon">📋</div>
-                        <div class="action-title">Histórico</div>
-                        <div class="action-desc">Treinos anteriores</div>
+                    <button class="action-card" onclick="app.navigate('profile')">
+                        <div class="action-icon">⚙️</div>
+                        <div class="action-title">Configurar</div>
+                        <div class="action-desc">Atualizar perfil</div>
                     </button>
                 </div>
             </div>
 
             <!-- Recent Activity -->
-            <div class="card">
+            <div class="card" data-animate="slideRight">
                 <h3>Atividade Recente</h3>
                 <div id="recentActivity">
                     <p class="text-center">Nenhuma atividade ainda</p>
@@ -97,7 +85,7 @@
             </div>
 
             <!-- Achievements -->
-            <div class="card" id="achievementsCard">
+            <div class="card" id="achievementsCard" data-animate="scale">
                 <h3>Conquistas 🏆</h3>
                 <div id="achievementsList">
                     <p class="text-center">Complete treinos para desbloquear conquistas!</p>
@@ -346,6 +334,7 @@
     </nav>
 
     <!-- Scripts -->
+    <script src="js/animations.js"></script>
     <script src="js/app.js"></script>
     <script src="js/auth.js"></script>
     <script src="js/uiManager.js"></script>
