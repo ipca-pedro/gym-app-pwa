@@ -121,12 +121,18 @@ class Dashboard {
         if (!bmiEl || !user?.profile) return;
 
         const measurements = JSON.parse(localStorage.getItem(`measurements_${user.id}`)) || {};
-        const latestWeight = measurements.weight?.[0];
+        const latestWeight = measurements.weight && measurements.weight.length > 0 ? measurements.weight[0] : null;
         
-        if (latestWeight && user.profile.height) {
+        // Use latest weight measurement or profile weight
+        const weight = latestWeight ? latestWeight.weight : user.profile.weight;
+        
+        if (weight && user.profile.height) {
             const heightM = user.profile.height / 100;
-            const bmi = (latestWeight.weight / (heightM * heightM)).toFixed(1);
-            bmiEl.querySelector('.stat-number').textContent = bmi;
+            const bmi = (weight / (heightM * heightM)).toFixed(1);
+            const statNumber = bmiEl.querySelector('.stat-number');
+            if (statNumber) {
+                statNumber.textContent = bmi;
+            }
         }
     }
 

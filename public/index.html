@@ -99,16 +99,20 @@
                 <h2>👤 Perfil</h2>
                 <form id="profileForm">
                     <div class="form-group">
-                        <label class="form-label">Nome</label>
-                        <input type="text" class="form-control" id="userName">
+                        <label class="form-label">Nome *</label>
+                        <input type="text" class="form-control" id="userName" required>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Idade</label>
-                        <input type="number" class="form-control" id="userAge">
+                        <label class="form-label">Idade *</label>
+                        <input type="number" class="form-control" id="userAge" min="16" max="100" required>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Altura (cm)</label>
-                        <input type="number" class="form-control" id="userHeight">
+                        <label class="form-label">Peso (kg) *</label>
+                        <input type="number" class="form-control" id="userWeight" min="30" max="300" step="0.1" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Altura (cm) *</label>
+                        <input type="number" class="form-control" id="userHeight" min="100" max="250" required>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Objetivo</label>
@@ -352,8 +356,9 @@
             
             const profile = {
                 name: document.getElementById('userName').value,
-                age: document.getElementById('userAge').value,
-                height: document.getElementById('userHeight').value,
+                age: parseInt(document.getElementById('userAge').value),
+                weight: parseFloat(document.getElementById('userWeight').value),
+                height: parseInt(document.getElementById('userHeight').value),
                 goal: document.getElementById('userGoal').value,
                 level: document.getElementById('userLevel').value,
                 workoutType: document.getElementById('workoutType').value,
@@ -362,9 +367,21 @@
                 sessionDuration: document.getElementById('sessionDuration').value,
                 preferredTime: document.getElementById('preferredTime').value
             };
+            
+            // Validate required fields
+            if (!profile.name || !profile.age || !profile.weight || !profile.height) {
+                authManager.showError('Preencha todos os campos obrigatórios (*)');
+                return;
+            }
 
             app.currentUser.profile = profile;
             app.saveUser();
+            
+            // Debug: verificar se foi salvo
+            console.log('Profile saved:', profile);
+            console.log('User data:', app.currentUser);
+            console.log('LocalStorage:', localStorage.getItem('gymAppUser'));
+            
             app.navigate('dashboard');
             authManager.showSuccess('Perfil salvo com sucesso!');
         });
