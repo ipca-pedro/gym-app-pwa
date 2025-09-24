@@ -9,7 +9,6 @@ class GymApp {
     init() {
         this.loadUser();
         this.setupEventListeners();
-        this.initTheme();
         this.router();
     }
 
@@ -27,17 +26,13 @@ class GymApp {
     setupEventListeners() {
         // Navigation
         document.addEventListener('click', (e) => {
-            if (e.target.matches('[data-nav]')) {
-                this.navigate(e.target.dataset.nav);
+            const navItem = e.target.closest('[data-nav]');
+            if (navItem) {
+                this.navigate(navItem.dataset.nav);
             }
         });
 
-        // Theme toggle
-        document.addEventListener('click', (e) => {
-            if (e.target.matches('.theme-toggle') || e.target.closest('.theme-toggle')) {
-                this.toggleTheme();
-            }
-        });
+
     }
 
     navigate(screen) {
@@ -54,7 +49,7 @@ class GymApp {
 
     hideAllScreens() {
         const screens = [
-            'login', 'dashboard', 'profile', 'workout', 'progress', 
+            'dashboard', 'profile', 'workout', 'progress', 
             'nutrition', 'social', 'settings', 'bodyTracker'
         ];
         
@@ -94,60 +89,35 @@ class GymApp {
     }
 
     router() {
+        // Criar usuário automático se não existir
         if (!this.currentUser) {
-            this.navigate('login');
-        } else if (!this.currentUser.profile) {
+            const userName = prompt('👋 Bem-vindo! Qual é o seu nome?') || 'Usuário';
+            
+            this.currentUser = {
+                id: 'local_user',
+                username: userName,
+                provider: 'local',
+                joinDate: new Date().toISOString()
+            };
+            this.saveUser();
+        }
+        
+        // Navegar baseado no perfil
+        if (!this.currentUser.profile) {
             this.navigate('profile');
         } else {
             this.navigate('dashboard');
         }
     }
 
-    // Theme Management
-    initTheme() {
-        const theme = localStorage.getItem('theme') || 'light';
-        document.documentElement.setAttribute('data-theme', theme);
-        this.updateThemeIcon(theme);
-    }
 
-    toggleTheme() {
-        const current = document.documentElement.getAttribute('data-theme');
-        const newTheme = current === 'dark' ? 'light' : 'dark';
-        document.documentElement.setAttribute('data-theme', newTheme);
-        localStorage.setItem('theme', newTheme);
-        this.updateThemeIcon(newTheme);
-    }
 
-    updateThemeIcon(theme) {
-        const icon = document.getElementById('themeIcon');
-        if (icon) {
-            icon.textContent = theme === 'dark' ? '🌞' : '🌙';
+    // Reset app data
+    resetApp() {
+        if (confirm('Tem certeza que deseja apagar todos os dados?')) {
+            localStorage.clear();
+            location.reload();
         }
-    }
-
-    // Authentication
-    async login(email, password) {
-        if (!email || !password) {
-            throw new Error('Email e senha são obrigatórios');
-        }
-
-        // Simulate authentication
-        this.currentUser = {
-            id: btoa(email),
-            email,
-            joinDate: new Date().toISOString(),
-            profile: null
-        };
-
-        this.saveUser();
-        this.navigate('profile');
-        return this.currentUser;
-    }
-
-    logout() {
-        this.currentUser = null;
-        localStorage.removeItem('gymAppUser');
-        this.navigate('login');
     }
 }
 

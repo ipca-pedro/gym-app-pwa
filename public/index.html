@@ -10,60 +10,10 @@
 
 </head>
 <body>
-    <div class="theme-toggle" onclick="app.toggleTheme()">
-        <span id="themeIcon">🌙</span>
-    </div>
+
 
     <div class="container">
-        <!-- Login Screen -->
-        <div id="loginScreen">
-            <div class="card">
-                <h1>🏋️ Gym App Pro</h1>
-                <p>Treinos inteligentes com IA e tracking completo</p>
-            </div>
-            
-            <div class="card">
-                <h2>Entrar</h2>
-                <form id="loginForm">
-                    <div class="form-group">
-                        <label class="form-label">Usuário</label>
-                        <input type="text" class="form-control" id="loginUsername" placeholder="Digite seu usuário" value="teste" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Senha</label>
-                        <input type="password" class="form-control" id="loginPassword" placeholder="Digite sua senha" value="123456" required>
-                    </div>
-                    <button type="submit" class="btn">Entrar</button>
-                </form>
-                
 
-                <button class="btn btn-secondary" onclick="showRegisterForm()">Criar Conta</button>
-                <button class="btn-link" onclick="showPasswordReset()">Esqueci minha senha</button>
-            </div>
-        </div>
-
-        <!-- Register Screen -->
-        <div id="registerScreen" class="hidden">
-            <div class="card">
-                <h2>Criar Conta</h2>
-                <form id="registerForm">
-                    <div class="form-group">
-                        <label class="form-label">Usuário</label>
-                        <input type="text" class="form-control" id="registerUsername" placeholder="Escolha um nome de usuário" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Senha</label>
-                        <input type="password" class="form-control" id="registerPassword" placeholder="Crie uma senha" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Confirmar Senha</label>
-                        <input type="password" class="form-control" id="confirmPassword" placeholder="Confirme sua senha" required>
-                    </div>
-                    <button type="submit" class="btn">Criar Conta</button>
-                </form>
-                <button class="btn btn-secondary" onclick="app.navigate('login')">Voltar</button>
-            </div>
-        </div>
 
         <!-- Dashboard -->
         <div id="dashboardScreen" class="hidden">
@@ -244,6 +194,11 @@
                     
                     <button type="submit" class="btn">Salvar Perfil</button>
                 </form>
+                
+                <div class="card">
+                    <h3>⚙️ Configurações</h3>
+                    <button class="btn btn-secondary" onclick="app.resetApp()">🗑️ Apagar Todos os Dados</button>
+                </div>
             </div>
         </div>
 
@@ -385,31 +340,7 @@
     <script src="js/workoutManager.js"></script>
     
     <script>
-        // Form Handlers
-        document.getElementById('loginForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const username = document.getElementById('loginUsername').value;
-            const password = document.getElementById('loginPassword').value;
-            
-            try {
-                await authManager.loginWithUsername(username, password);
-            } catch (error) {
-                console.error('Login failed:', error);
-            }
-        });
-
-        document.getElementById('registerForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const username = document.getElementById('registerUsername').value;
-            const password = document.getElementById('registerPassword').value;
-            const confirmPassword = document.getElementById('confirmPassword').value;
-            
-            try {
-                await authManager.registerWithUsername(username, password, confirmPassword);
-            } catch (error) {
-                console.error('Registration failed:', error);
-            }
-        });
+        // Profile Form Handler
 
         document.getElementById('profileForm').addEventListener('submit', (e) => {
             e.preventDefault();
@@ -457,16 +388,7 @@
 
 
 
-        function showRegisterForm() {
-            app.navigate('register');
-        }
 
-        function showPasswordReset() {
-            const username = prompt('Digite seu usuário para recuperação:');
-            if (username) {
-                authManager.resetPassword(username);
-            }
-        }
 
 
     </script>
