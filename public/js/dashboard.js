@@ -271,15 +271,20 @@ class Dashboard {
         // Build comprehensive prompt based on all profile data
         const prompt = this.buildWorkoutPrompt(profile, recommendation);
         
+        // Skip API in production for now, use fallback directly
+        if (window.location.hostname !== 'localhost') {
+            console.log('Production environment - using offline generation');
+            authManager.showNotification('Gerando treino personalizado...', 'info');
+            return this.generateRuleBasedWorkout(recommendation);
+        }
+        
         try {
-            // Try API endpoint (local dev or deployed)
-            const apiUrl = window.location.hostname === 'localhost' ? 
-                'http://localhost:8787/api/workout' : 
-                'https://gym-app-api.a25453.workers.dev/api/workout';
+            // Try API endpoint (local dev only)
+            const apiUrl = 'http://localhost:8787/api/workout';
             
             // Add timeout for slow API
             const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+            const timeoutId = setTimeout(() => controller.abort(), 10000);
             
             const response = await fetch(apiUrl, {
                 method: 'POST',
