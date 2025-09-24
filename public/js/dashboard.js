@@ -238,7 +238,7 @@ class Dashboard {
         const recommendation = this.getWorkoutRecommendation();
         console.log('Workout recommendation:', recommendation);
         
-        this.showEnhancedLoading('Gerando treino personalizado...', '🤖');
+        this.showEnhancedLoading('Gerando treino com IA...', '🤖');
         
         try {
             // Generate workout based on full profile
@@ -277,6 +277,10 @@ class Dashboard {
                 'http://localhost:8787/api/workout' : 
                 'https://gym-app-api.a25453.workers.dev/api/workout';
             
+            // Add timeout for slow API
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+            
             const response = await fetch(apiUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -285,8 +289,11 @@ class Dashboard {
                     profile: profile,
                     recommendation: recommendation,
                     prompt: prompt
-                })
+                }),
+                signal: controller.signal
             });
+            
+            clearTimeout(timeoutId);
 
             console.log('Response status:', response.status);
             console.log('Response headers:', response.headers);
@@ -325,7 +332,12 @@ class Dashboard {
                 console.error('Error response:', errorText);
             }
         } catch (error) {
-            console.log('API não disponível, usando geração offline:', error.message);
+            if (error.name === 'AbortError') {
+                console.log('API timeout - usando geração offline');
+                authManager.showNotification('API lenta, gerando treino offline...', 'info');
+            } else {
+                console.log('API não disponível, usando geração offline:', error.message);
+            }
         }
         
         // Fallback to rule-based generation
@@ -467,7 +479,7 @@ Retorne JSON: {
             <div class="loading-content">
                 <div class="pulse-loader"></div>
                 <h3 style="margin: 20px 0 10px; color: white;">${icon} ${message}</h3>
-                <p style="color: rgba(255,255,255,0.8); margin: 0;">Isso pode levar alguns segundos...</p>
+                <p style="color: rgba(255,255,255,0.8); margin: 0;">Pode demorar até 10 segundos...</p>
             </div>
         `;
         
