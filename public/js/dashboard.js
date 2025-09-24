@@ -219,18 +219,29 @@ class Dashboard {
 
     async startRecommendedWorkout() {
         const user = app.currentUser;
+        console.log('Current user:', user);
+        
         if (!user?.profile) {
+            console.log('No profile found, redirecting to profile page');
+            authManager.showError('Configure seu perfil primeiro!');
             app.navigate('profile');
             return;
         }
-
+        
+        console.log('User profile:', user.profile);
         const recommendation = this.getWorkoutRecommendation();
+        console.log('Workout recommendation:', recommendation);
         
         this.showEnhancedLoading('Gerando treino personalizado...', '🤖');
         
         try {
             // Generate workout based on full profile
             const workout = await this.generatePersonalizedWorkout(recommendation);
+            console.log('Generated workout:', workout);
+            
+            if (!workout) {
+                throw new Error('No workout generated');
+            }
             
             workoutManager.currentWorkout = workout;
             workoutManager.saveWorkout();
@@ -241,8 +252,9 @@ class Dashboard {
             this.hideEnhancedLoading();
             authManager.showSuccess(`Treino ${recommendation.name} gerado!`);
         } catch (error) {
+            console.error('Error generating workout:', error);
             this.hideEnhancedLoading();
-            authManager.showError('Erro ao gerar treino');
+            authManager.showError('Erro ao gerar treino: ' + error.message);
         }
     }
 
